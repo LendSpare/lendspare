@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Template for scripts/pack-msix.sh, which fills the placeholders from scripts/msix.env. -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 desktop rescap">
+
+  <Identity Name="@IDENTITY_NAME@" Publisher="@PUBLISHER@" Version="@VERSION@" ProcessorArchitecture="@ARCH@" />
+
+  <Properties>
+    <DisplayName>@DISPLAY_NAME@</DisplayName>
+    <PublisherDisplayName>@PUBLISHER_DISPLAY_NAME@</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>Offer folders and spare compute from this computer to the services you choose.</Description>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+  </Resources>
+
+  <Applications>
+    <Application Id="LendSpare" Executable="lendspare.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="@DISPLAY_NAME@" Description="Share folders and spare compute"
+        BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- lendspare://connect?... starts lendspare.exe with the link as its argument (app.go hands it on). -->
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="lendspare">
+            <uap:DisplayName>LendSpare</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <!-- `lendspare connect`, `lendspare connections`, ... from a terminal. -->
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="lendspare.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap3:AppExecutionAlias>
+            <desktop:ExecutionAlias Alias="lendspare.exe" />
+          </uap3:AppExecutionAlias>
+        </uap3:Extension>
+        <!-- Start at login: off until the person turns it on in Settings > Apps > Startup. -->
+        <desktop:Extension Category="windows.startupTask" Executable="lendspare.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="LendSpareStartup" Enabled="false" DisplayName="@DISPLAY_NAME@" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <Capability Name="internetClient" />
+    <Capability Name="privateNetworkClientServer" />
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

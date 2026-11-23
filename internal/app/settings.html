@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LendSpare settings</title>
+<style>
+:root { --bg: #f7f7f5; --card: #fff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e3e3e0; --accent: #2563eb;
+  --ok: #1f8a46; --warn: #b7791f; --bad: #c0392b; --chip: #efefec; }
+@media (prefers-color-scheme: dark) { :root { --bg: #161618; --card: #202023; --ink: #ececee; --muted: #9a9aa2;
+  --line: #333338; --accent: #6b9bff; --ok: #4cc27a; --warn: #e0a84a; --bad: #ef6b5e; --chip: #2b2b30; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; }
+h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 17px; margin: 0 0 10px; }
+.muted { color: var(--muted); } .small { font-size: 13px; } .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 16px; }
+[hidden] { display: none !important; } /* .row and friends set display, which beats the browser's own [hidden] */
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+input[type=text], input[type=number], select, textarea { font: inherit; color: inherit; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; }
+input[type=text] { min-width: 0; } textarea { width: 100%; min-height: 70px; }
+button { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 8px;
+  padding: 7px 12px; cursor: pointer; } button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { color: var(--bad); }
+.chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--chip); font-size: 12px; }
+.chip.ok { color: var(--ok); } .chip.bad { color: var(--bad); } .chip.warn { color: var(--warn); }
+.share { border-top: 1px solid var(--line); padding-top: 12px; margin-top: 12px; }
+.share:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 16px; margin-top: 8px; }
+label.check { display: flex; gap: 6px; align-items: center; } label.field { display: flex; flex-direction: column; gap: 3px; font-size: 13px; }
+.question { border: 1px solid var(--warn); border-radius: 10px; padding: 12px; margin-top: 10px; white-space: pre-wrap; }
+.code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 16px; letter-spacing: 1px; font-weight: 600; }
+#browser { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; max-height: 340px; overflow: auto; }
+#browser .dir { display: block; width: 100%; text-align: left; border: 0; padding: 6px 8px; border-radius: 6px; }
+#browser .dir:hover { background: var(--chip); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; } td, th { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+tr.fail td { color: var(--bad); }
+#flash { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--bg);
+  padding: 8px 14px; border-radius: 8px; display: none; max-width: 90vw; }
+.wrap { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+<main>
+  <div class="row between">
+    <div>
+      <h1>LendSpare</h1>
+      <div class="muted small" id="status">Loading...</div>
+    </div>
+    <div class="small muted" style="text-align: right;">This computer's code: <span class="code" id="mycode"></span>
+      <label class="check" style="justify-content: flex-end; margin-top: 4px;" id="autostart-row"><input type="checkbox" id="autostart"> Start when I log in</label>
+      <a href="#" class="small" id="autostart-managed" hidden>Start when I log in: Windows Settings</a></div>
+  </div>
+
+  <section id="first-run" hidden>
+    <h2>LendSpare is ready</h2>
+    <p>LendSpare is running on this computer. It has not connected to any service, and nothing on this computer is shared.</p>
+    <p class="muted">To use it with a service, connect from the website where you use LendSpare.</p>
+    <p class="muted small">You can set up shared folders here without an account.</p>
+  </section>
+
+  <section id="pending-box" hidden>
+    <h2>Waiting for you</h2>
+    <div id="pending"></div>
+  </section>
+
+  <section>
+    <h2>Connections</h2>
+    <div id="connections"></div>
+    <div class="share">
+      <h2>Connect</h2>
+      <div class="row">
+        <label class="field">Service provider<select id="conn-provider"></select></label>
+        <label class="field">Code (optional)<input type="text" id="conn-code" placeholder="XXXX-XXXX" maxlength="12" style="width: 130px;"></label>
+        <button id="conn-go" class="primary">Continue</button>
+      </div>
+      <p class="muted small">Enter the code shown on the website, or leave it empty to connect from here. Check the details on the next screen before you allow anything.</p>
+    </div>
+    <label class="check" style="margin-top: 10px;"><input type="checkbox" id="deeplink"> Let websites open LendSpare (lendspare:// links). A link only opens the confirmation; it never changes anything by itself.</label>
+  </section>
+
+  <section id="questions-box" hidden>
+    <h2>Waiting for you</h2>
+    <div id="questions"></div>
+  </section>
+
+  <section>
+    <h2>Folders this computer shares</h2>
+    <p class="muted small">Only these folders can be reached, only by sites you allowed, and only by your own account (or accounts you shared this computer with). Nothing else on this computer has a name a site could ask for.</p>
+    <div id="shares"></div>
+    <div class="share">
+      <h2>Share a folder</h2>
+      <div class="row">
+        <input type="text" id="add-path" placeholder="Paste a folder path and press Enter, e.g. D:\Backups\sql or /home/me/backups" style="flex: 1 1 320px;">
+      </div>
+      <p class="muted small">A folder is shared as soon as you choose it; rename it or change what sites may do in its card above.</p>
+      <div class="row" style="margin-top: 8px;">
+        <button id="browse-btn">Browse...</button>
+        <button id="pick-btn">Choose with the system dialog...</button>
+      </div>
+      <div id="browser" hidden></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Sites allowed in</h2>
+    <p class="muted small">A site is known by its code. When a new one asks, you are asked here and on the desktop; compare its code with the one the site shows.</p>
+    <div id="sites"></div>
+  </section>
+
+  <section>
+    <h2>Direct transfers on the local network</h2>
+    <p class="muted small">A site on the same network (or in Docker on this computer) can skip the internet. Off: everything goes through the connected provider, sealed so it cannot read it.</p>
+    <div class="row">
+      <label class="check"><input type="checkbox" id="direct-on"> Allow direct transfers</label>
+      <label class="field" style="flex-direction: row; align-items: center; gap: 6px;">Port <input type="number" id="direct-port" min="1024" max="65535" style="width: 100px;"></label>
+      <button id="direct-save" class="primary" hidden>Save</button>
+    </div>
+    <label class="field" style="margin-top: 8px;">Reachable from outside as (optional: a forwarded port or a DNS name, e.g. home.example.net:47321)
+      <input type="text" id="direct-advertise" placeholder="host:port"></label>
+    <p class="muted small">Sites can also be the server themselves, or use a relay of your own (lendspare --relay): that is set on the site. Whatever the path, only the folders and sites allowed here are reachable.</p>
+  </section>
+
+  <section>
+    <h2>Pipeline images trusted with your API keys</h2>
+    <p class="muted small">The keys file (--pipeline-env) is handed only to container images whose digest is listed here (one per line, sha256:...).</p>
+    <textarea id="trust" class="mono" spellcheck="false"></textarea>
+    <div class="row" style="margin-top: 8px;"><button id="trust-save" class="primary" hidden>Save</button></div>
+  </section>
+
+  <section>
+    <h2>Activity</h2>
+    <div style="overflow-x: auto;"><table><thead><tr><th>When</th><th>Site</th><th>What</th><th>Result</th></tr></thead><tbody id="activity"></tbody></table></div>
+  </section>
+</main>
+<div id="flash"></div>
+<script>
+(function () {
+  'use strict';
+  var token = '';
+  try { token = sessionStorage.getItem('lendspareToken') || ''; } catch (e) {}
+  var m = /[#&]t=([a-f0-9]+)/.exec(location.hash);
+  if (m) { token = m[1]; try { sessionStorage.setItem('lendspareToken', token); } catch (e) {} history.replaceState(null, '', location.pathname); }
+  var state = null, sharesKey = '';
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function size(n) { if (n == null || n < 0) return 'measuring...'; var u = ['bytes','KB','MB','GB','TB'], i = 0; while (n >= 1024 && i < 4) { n /= 1024; i++; } return (i ? n.toFixed(1) : n) + ' ' + u[i]; }
+  function flash(msg, bad) { var f = $('flash'); f.textContent = msg; f.style.background = bad ? 'var(--bad)' : ''; f.style.display = 'block'; clearTimeout(flash.t); flash.t = setTimeout(function () { f.style.display = 'none'; }, 4000); }
+  function api(method, path, body) {
+    var opts = {method: method, headers: {'X-LendSpare-Token': token}};
+    if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+    return fetch(path, opts).then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) {
+      if (!r.ok) throw new Error(d.error || ('Error ' + r.status)); return d; }); });
+  }
+
+  var stateText = {ok: ['ok', 'Readable'], missing: ['bad', 'Folder not found'], denied: ['bad', 'No permission to read'],
+    noaccess: ['bad', 'Blocked by the folder permissions'], offline: ['warn', 'Network share not answering']};
+
+  // What to do about a folder that cannot be read; empty when it can.
+  function shareHint(s) {
+    var mac = state.os === 'darwin', exe = state.exe ? ' Program: <span class="mono">' + esc(state.exe) + '</span>' : '';
+    var buttons = '<button data-recheck>Check again</button>';
+    if (s.state === 'denied' && mac) {
+      var privacy = '<button data-privacy="files">Open Files and Folders</button><button data-privacy="full">Open Full Disk Access</button>';
+      if (s.network) return '<span>This folder is on a network share (e.g. shared from a Windows PC), and macOS has not let this program read network shares. In Files and Folders turn on <strong>Network Volumes</strong> for LendSpare - or add the program to Full Disk Access with + - then restart it.' + exe + '</span>'
+        + privacy + buttons + '<button data-restart>Restart the program</button>';
+      return '<span>macOS has not let this program read the folder. Allow it, then come back:' + exe + '</span>'
+        + privacy + buttons + '<button data-restart>Restart the program</button>';
+    }
+    if (s.state === 'noaccess') return '<span>' + (s.network || mac
+      ? 'The share does not let the account it was connected with read this folder. On the PC that shares it, give that account Read permission (Sharing and Security tabs of the folder), or reconnect the share as a user who may (Finder: Go - Connect to Server).'
+      : 'The account this program runs as may not read this folder. Give it read permission, or share a folder it can read.') + '</span>' + buttons;
+    if (s.state === 'offline') return '<span>The network share is mounted but does not answer: the PC that shares it may be asleep or off, or the connection dropped. Wake it, reconnect the share' + (mac ? ' in Finder' : '') + ', then check again.</span>' + buttons;
+    if (s.state === 'missing' && s.network) return '<span>The network share is not connected. Connect it again' + (mac ? ' (Finder: Go - Connect to Server)' : '') + ', then check again.</span>' + buttons;
+    return '';
+  }
+
+  function renderShares() {
+    var key = JSON.stringify([state.shares.map(function (s) { return s.config; }), (state.connections || []).map(function (c) { return [c.id, c.host, c.scopes, c.state]; })]);
+    if (key === sharesKey) { // only the live parts: state and use
+      state.shares.forEach(function (s, i) {
+        var el = document.querySelector('[data-share-state="' + i + '"]'); if (el) el.innerHTML = stateChip(s);
+        var u = document.querySelector('[data-share-used="' + i + '"]'); if (u) u.textContent = size(s.used);
+        var p = document.querySelector('[data-share-privacy="' + i + '"]');
+        if (p) { var h = s.config.enabled ? shareHint(s) : ''; if (p.getAttribute('data-hint') !== h) { p.innerHTML = h; p.setAttribute('data-hint', h); } p.hidden = !h; }
+      });
+      return;
+    }
+    sharesKey = key;
+    if (!state.shares.length) { $('shares').innerHTML = '<p class="muted">Nothing is shared yet.</p>'; return; }
+    $('shares').innerHTML = state.shares.map(function (s, i) {
+      var c = s.config, q = Math.round((c.quotaBytes || 10737418240) / 1073741824 * 10) / 10;
+      return '<div class="share" data-i="' + i + '">'
+        + '<div class="row between"><div><strong>' + esc(c.name) + '</strong> <span data-share-state="' + i + '">' + stateChip(s) + '</span>'
+        + '<div class="muted small mono wrap">' + esc(c.path) + '</div></div>'
+        + '<div class="small muted"><span data-share-used="' + i + '">' + size(s.used) + '</span> of ' + q + ' GB quota</div></div>'
+        + (function () { var h = c.enabled ? shareHint(s) : ''; return '<div class="row small wrap" data-share-privacy="' + i + '" data-hint="' + esc(h) + '"' + (h ? '' : ' hidden') + ' style="margin-top: 6px;">' + h + '</div>'; })()
+        + '<div class="grid">'
+        + '<label class="field">Name<input type="text" data-f="name" value="' + esc(c.name) + '"></label>'
+        + '<label class="field">Quota (GB, always set)<input type="number" min="0.1" step="0.1" data-f="quota" value="' + q + '"></label>'
+        + '<label class="field">When a newer file would replace one here<select data-f="onConflict">'
+        + opt('ask', 'Ask me', c.onConflict) + opt('newer', 'Newer file replaces older', c.onConflict) + opt('never', 'Never replace', c.onConflict) + '</select></label>'
+        + '<label class="check"><input type="checkbox" data-f="enabled"' + (c.enabled ? ' checked' : '') + '> Shared</label>'
+        + '<label class="check" title="' + esc(s.writeRisk) + '"><input type="checkbox" data-f="writable"' + (c.writable ? ' checked' : '') + (s.writeRisk ? ' disabled' : '') + '> Sites may write</label>'
+        + '<label class="check"><input type="checkbox" data-f="allowDelete"' + (c.allowDelete ? ' checked' : '') + '> Sites may delete</label>'
+        + '<label class="check"><input type="checkbox" data-f="allowPrograms"' + (c.allowPrograms ? ' checked' : '') + '> Programs and scripts may be written</label>'
+        + '<label class="check"><input type="checkbox" data-f="allowHidden"' + (c.allowHidden ? ' checked' : '') + '> Hidden files are visible</label>'
+        + '</div>' + grantRow(c)
+        + (s.writeRisk ? '<p class="small muted">' + esc(s.writeRisk) + '</p>' : '')
+        + '<div class="row" style="margin-top: 8px;"><button class="primary" data-save hidden>Save</button></div></div>';
+    }).join('');
+  }
+  // Which connections this folder is offered through; none until the person ticks one.
+  function grantRow(c) {
+    var cs = (state.connections || []).filter(function (x) { return (x.scopes || []).indexOf('files:serve') >= 0; });
+    if (!cs.length) return '<p class="small muted">Offered to no service. Connect one to offer this folder through it.</p>';
+    return '<div class="row small" style="margin-top: 8px;"><span class="muted">Offered through:</span>' + cs.map(function (x) {
+      return '<label class="check"><input type="checkbox" data-grant="' + esc(c.name) + '" data-conn="' + esc(x.id) + '"' + ((c.connections || []).indexOf(x.id) >= 0 ? ' checked' : '') + '> ' + esc(x.host) + ' (' + esc(x.service) + ')</label>';
+    }).join('') + '</div>';
+  }
+  function opt(v, label, cur) { return '<option value="' + v + '"' + (v === cur ? ' selected' : '') + '>' + label + '</option>'; }
+  function stateChip(s) { var t = stateText[s.state] || ['warn', s.state]; if (!s.config.enabled) t = ['', 'Not shared']; return '<span class="chip ' + t[0] + '">' + t[1] + '</span>'; }
+
+  function renderQuestions() {
+    var qs = state.questions || [];
+    $('questions-box').hidden = !qs.length;
+    $('questions').innerHTML = qs.map(function (q) {
+      if (q.kind === 'approval') {
+        var a = q.approval;
+        return '<div class="question"><strong>A site asks to ' + (a.mode === 'write' ? 'read and write' : 'read') + ' "' + esc(a.share) + '"</strong>\n'
+          + 'It calls itself: ' + esc(a.siteName || '(no name)') + (a.from && a.from.sharedAccount ? '\nAccount: ' + esc(a.from.sharedAccount) + ' (you shared this computer with it)' : '')
+          + '\nIts code: <span class="code">' + esc(a.fingerprint) + '</span>\n<span class="muted small">Compare the code with the one the site shows: only the code proves which site this is.</span>'
+          + '<div class="row" style="margin-top: 8px;"><button class="primary" data-answer="allow" data-q="' + q.id + '">Allow</button><button data-answer="deny" data-q="' + q.id + '">Deny</button></div></div>';
+      }
+      var c = q.conflict;
+      return '<div class="question"><strong>Replace "' + esc(c.path) + '" in "' + esc(c.share) + '"?</strong>\n'
+        + esc(c.siteName || 'A site') + ' (code <span class="code">' + esc(c.fingerprint) + '</span>) sends a newer file.\n'
+        + 'Here: ' + size(c.existingSize) + ', ' + new Date(c.existingMtime * 1000).toLocaleString() + '\nIncoming: ' + size(c.incomingSize) + ', ' + new Date(c.incomingMtime * 1000).toLocaleString()
+        + '<div class="row" style="margin-top: 8px;"><button class="primary" data-answer="replace" data-q="' + q.id + '">Replace</button>'
+        + '<button data-answer="replace-all" data-q="' + q.id + '">Replace all from this site (10 min)</button><button data-answer="keep" data-q="' + q.id + '">Keep the file here</button></div></div>';
+    }).join('');
+  }
+
+  function renderSites() {
+    var sites = state.sites || [];
+    if (!sites.length) { $('sites').innerHTML = '<p class="muted">No site yet.</p>'; return; }
+    $('sites').innerHTML = sites.map(function (s) {
+      var rows = Object.keys(s.shares || {}).map(function (name) {
+        return '<div class="row small"><span style="min-width: 140px;">' + esc(name) + '</span><select data-site-access data-key="' + esc(s.key) + '" data-share="' + esc(name) + '">'
+          + opt('read', 'Read', s.shares[name]) + opt('write', 'Read and write', s.shares[name]) + opt('', 'No access', '') + '</select></div>';
+      }).join('');
+      return '<div class="share"><div class="row between"><div><strong>' + esc(s.name || '(no name)') + '</strong> <span class="code">' + esc(s.fingerprint) + '</span>'
+        + '<div class="muted small">Allowed ' + new Date(s.added).toLocaleDateString() + (s.lastUsed && s.lastUsed.indexOf('0001') !== 0 ? ', last used ' + new Date(s.lastUsed).toLocaleString() : '') + '</div></div>'
+        + '<button class="danger" data-revoke="' + esc(s.key) + '">Remove the site</button></div>' + rows + '</div>';
+    }).join('');
+  }
+
+  function renderActivity() {
+    var rows = (state.activity || []).slice(0, 150);
+    $('activity').innerHTML = rows.length ? rows.map(function (a) {
+      var fail = ['ok', 'approval_pending', 'denied'].indexOf(a.result) < 0;
+      return '<tr class="' + (fail ? 'fail' : '') + '"><td>' + esc(new Date(a.time).toLocaleString()) + '</td><td>' + esc(a.site) + '</td><td class="wrap">' + esc(a.op + ' ' + a.share + '/' + (a.path || '')) + '</td>'
+        + '<td class="wrap">' + esc(a.result) + (a.message ? ': ' + esc(a.message) : '') + '</td></tr>';
+    }).join('') : '<tr><td colspan="4" class="muted">Nothing yet.</td></tr>';
+  }
+
+  var reviewed = {};
+  function scopeChips(sc) { return (sc || []).map(function (s) { return '<span class="chip">' + esc({'compute:offer': 'computing', 'files:serve': 'folders'}[s] || s) + '</span>'; }).join(' '); }
+  function renderPending() {
+    var ps = state.pending || [];
+    $('pending-box').hidden = !ps.length;
+    $('pending').innerHTML = ps.map(function (p) {
+      var id = esc(p.id), h = '<div class="question"><strong>' + esc(p.title) + '</strong>\n' + esc(p.summary);
+      if (p.kind !== 'device' && p.code) h += '\nCode on the website: <span class="code">' + esc(p.code) + '</span>';
+      if (p.error) return h + '\n<span style="color: var(--bad);">' + esc(p.error) + '</span><div class="row" style="margin-top: 8px;"><button data-pcancel="' + id + '">Close</button></div></div>';
+      if (p.waiting) return h + '\nOpen <span class="mono wrap">' + esc(p.verifyUrl || '') + '</span> and press Allow if the code is <span class="code">' + esc(p.userCode || '...') + '</span>'
+        + '<div class="row" style="margin-top: 8px;"><button data-pcancel="' + id + '">Cancel</button></div></div>';
+      if (reviewed[p.id]) h += '\n' + (p.details || []).map(esc).join('\n\n');
+      h += '<div class="row" style="margin-top: 8px;">' + (reviewed[p.id] ? '<button class="primary" data-pallow="' + id + '">Allow connection</button>' : '<button class="primary" data-preview="' + id + '">Review permissions</button>')
+        + '<button data-pcancel="' + id + '">Cancel</button></div></div>';
+      return h;
+    }).join('');
+  }
+  function renderConnections() {
+    var cs = state.connections || [];
+    $('first-run').hidden = cs.length > 0 || (state.pending || []).length > 0;
+    $('connections').innerHTML = cs.length ? cs.map(function (c) {
+      var chip = c.state === 'connected' ? (c.paused ? '<span class="chip warn">Paused</span>' : '<span class="chip ok">Connected</span>') : '<span class="chip bad">' + (c.state === 'blocked' ? 'Blocked' : 'Disconnected') + '</span>';
+      var can = c.state === 'connected' && (c.scopes || []).indexOf('compute:offer') >= 0;
+      return '<div class="share"><div class="row between"><div><strong>' + esc(c.host) + '</strong> ' + chip
+        + '<div class="muted small">' + esc(c.operator ? c.operator + ' - ' : '') + esc(c.service) + (c.account ? ', account ' + esc(c.account) : '') + ' ' + scopeChips(c.scopes) + '</div>'
+        + (c.reason ? '<div class="small" style="color: var(--bad);">' + esc(c.reason) + '</div>' : '') + '</div>'
+        + '<div class="row">' + (c.state === 'connected' ? '<button data-cpause="' + esc(c.id) + '" data-to="' + (c.paused ? '0' : '1') + '" data-host="' + esc(c.host) + '">' + (c.paused ? 'Resume' : 'Pause') + '</button>' : '')
+        + '<button class="danger" data-cdisc="' + esc(c.id) + '" data-host="' + esc(c.host) + '" data-op="' + esc(c.operator || c.host) + '">Disconnect</button></div></div>'
+        + (can ? '<label class="check" style="margin-top: 6px;"><input type="checkbox" data-ccompute="' + esc(c.id) + '"' + (c.compute ? ' checked' : '') + '> Offer computing capacity of this computer to ' + esc(c.host) + '</label>'
+          + '<div class="muted small">Computing stays off until you switch it on here.</div>' : '') + '</div>';
+    }).join('') : '<p class="muted">No connection yet.</p>';
+    var sel = $('conn-provider');
+    if (sel.options.length !== (state.providers || []).length) sel.innerHTML = (state.providers || []).map(function (p) { return '<option>' + esc(p) + '</option>'; }).join('');
+    $('deeplink').checked = !!state.deepLink;
+  }
+
+  function render() {
+    $('status').textContent = (state.status || 'Running') + ' - version ' + state.version;
+    $('mycode').textContent = state.fingerprint || '';
+    renderPending(); renderConnections(); renderQuestions(); renderShares(); renderSites(); renderActivity();
+    if (!render.once) {
+      render.once = true;
+      $('direct-on').checked = !!state.direct.enabled; $('direct-port').value = state.direct.port || 47321;
+      $('direct-advertise').value = (state.direct.advertise || []).join(', ');
+      $('trust').value = (state.pipelineTrust || []).join('\n');
+      $('autostart').checked = !!state.autostart;
+      $('autostart-row').hidden = !!state.autostartManaged; $('autostart-managed').hidden = !state.autostartManaged;
+      saved.direct = directValues(); saved.trust = $('trust').value; dirtyForms();
+    }
+  }
+  // The direct and trust Save buttons, like a share card's, show only while something differs.
+  var saved = {};
+  function directValues() { return JSON.stringify([$('direct-on').checked, $('direct-port').value, $('direct-advertise').value]); }
+  function dirtyForms() { $('direct-save').hidden = directValues() === saved.direct; $('trust-save').hidden = $('trust').value === saved.trust; }
+  ['direct-on', 'direct-port', 'direct-advertise', 'trust'].forEach(function (id) { $(id).addEventListener('input', dirtyForms); $(id).addEventListener('change', dirtyForms); });
+
+  function load() { return api('GET', '/api/state').then(function (s) { state = s; render(); }).catch(function (e) { $('status').textContent = e.message; }); }
+
+  function shareFrom(el) {
+    var box = el.closest('.share'), i = +box.getAttribute('data-i'), c = JSON.parse(JSON.stringify(state.shares[i].config));
+    box.querySelectorAll('[data-f]').forEach(function (f) {
+      var k = f.getAttribute('data-f');
+      if (k === 'quota') c.quotaBytes = Math.round(parseFloat(f.value || '0') * 1073741824);
+      else if (f.type === 'checkbox') c[k] = f.checked; else c[k] = f.value;
+    });
+    return {name: state.shares[i].config.name, share: c};
+  }
+
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    if (b.hasAttribute('data-save')) { api('POST', '/api/shares/update', shareFrom(b)).then(function () { sharesKey = ''; flash('Saved.'); load(); }).catch(function (e) { flash(e.message, true); }); }
+    else if (b.hasAttribute('data-answer')) { api('POST', '/api/answer', {id: b.getAttribute('data-q'), answer: b.getAttribute('data-answer')}).then(load).catch(function (e) { flash(e.message, true); load(); }); }
+    else if (b.hasAttribute('data-revoke')) { if (confirm('Remove this site? It has to ask again.')) api('POST', '/api/sites/revoke', {key: b.getAttribute('data-revoke')}).then(load); }
+    else if (b.hasAttribute('data-privacy')) { api('POST', '/api/open-privacy', {pane: b.getAttribute('data-privacy')}); }
+    else if (b.hasAttribute('data-recheck')) { load(); }
+    else if (b.hasAttribute('data-restart')) { api('POST', '/api/restart', {}).then(function () { flash('Restarting - open Shared folders again from the menu in a moment.'); }); }
+    else if (b.hasAttribute('data-preview')) { reviewed[b.getAttribute('data-preview')] = true; renderPending(); }
+    else if (b.hasAttribute('data-pallow')) { api('POST', '/api/connect/allow', {id: b.getAttribute('data-pallow')}).then(function () { flash('Connection allowed.'); load(); }).catch(function (e) { flash(e.message, true); load(); }); }
+    else if (b.hasAttribute('data-pcancel')) { api('POST', '/api/connect/cancel', {id: b.getAttribute('data-pcancel')}).then(load); }
+    else if (b.hasAttribute('data-cpause')) {
+      var pause = b.getAttribute('data-to') === '1', host = b.getAttribute('data-host');
+      if (!pause || confirm('Pause sharing?\n\nNo new tasks or requests will be accepted from ' + host + '. A task that is already running stops shortly.'))
+        api('POST', '/api/connections/pause', {id: b.getAttribute('data-cpause'), paused: pause}).then(load).catch(function (e) { flash(e.message, true); });
+    }
+    else if (b.hasAttribute('data-cdisc')) {
+      var h = b.getAttribute('data-host');
+      if (confirm('Disconnect from ' + h + '?\n\nThis removes the connection and its permissions. Other connections are not affected.\n\n' + b.getAttribute('data-op') + ' will no longer accept this computer\'s credentials. Records the service must keep stay with it.\n\nFolders you set up stay on this computer and are no longer reachable through ' + h + '.'))
+        api('POST', '/api/connections/disconnect', {id: b.getAttribute('data-cdisc')}).then(function (r) { flash(r.notice || ('Disconnected from ' + h + '.')); sharesKey = ''; load(); }).catch(function (e) { flash(e.message, true); });
+    }
+    else if (b.id === 'conn-go') {
+      var code = $('conn-code').value.trim(), prov = $('conn-provider').value;
+      api('POST', code ? '/api/connect/code' : '/api/connect/start', {provider: prov, code: code}).then(function () { $('conn-code').value = ''; load(); }).catch(function (e) { flash(e.message, true); });
+    }
+    else if (b.hasAttribute('data-dir')) { browseTo(b.getAttribute('data-dir')); }
+    else if (b.hasAttribute('data-share-here')) { addShare(b.getAttribute('data-share-here')); }
+  });
+  // Save shows only while a card holds something different from what is saved.
+  function shareDirty(box) {
+    var i = +box.getAttribute('data-i'), c = state.shares[i] && state.shares[i].config, now = shareFrom(box).share;
+    if (!c) return false;
+    return ['name', 'quotaBytes', 'onConflict', 'enabled', 'writable', 'allowDelete', 'allowPrograms', 'allowHidden'].some(function (k) {
+      return k === 'quotaBytes' ? now[k] !== (c[k] || 10737418240) : (k === 'name' || k === 'onConflict' ? String(now[k] || '') !== String(c[k] || '') : !!now[k] !== !!c[k]);
+    });
+  }
+  function markDirty(ev) {
+    var box = ev.target.closest && ev.target.closest('.share[data-i]'); if (!box || !ev.target.hasAttribute('data-f')) return;
+    var b = box.querySelector('[data-save]'); if (b) b.hidden = !shareDirty(box);
+  }
+  document.addEventListener('input', markDirty);
+  document.addEventListener('change', markDirty);
+  document.addEventListener('change', function (ev) {
+    var t = ev.target;
+    if (t.hasAttribute && t.hasAttribute('data-grant')) { api('POST', '/api/shares/grant', {name: t.getAttribute('data-grant'), connection: t.getAttribute('data-conn'), granted: t.checked}).then(function () { sharesKey = ''; load(); }).catch(function (e) { flash(e.message, true); load(); }); return; }
+    if (t.hasAttribute && t.hasAttribute('data-ccompute')) { api('POST', '/api/connections/compute', {id: t.getAttribute('data-ccompute'), enabled: t.checked}).then(load).catch(function (e) { flash(e.message, true); load(); }); return; }
+    if (t.id === 'deeplink') { api('POST', '/api/deeplink-handler', {enabled: t.checked}).then(function () { flash('Saved.'); }).catch(function (e) { flash(e.message, true); load(); }); return; }
+    var s = ev.target.closest('[data-site-access]'); if (!s) return;
+    api('POST', '/api/sites/access', {key: s.getAttribute('data-key'), share: s.getAttribute('data-share'), mode: s.value}).then(load);
+  });
+
+  // typed: the path came from the keyboard, so the folder must exist; a chosen one is shared as is.
+  function addShare(path, typed) {
+    api('POST', '/api/shares', {path: path, typed: !!typed}).then(function (r) {
+      $('add-path').value = ''; $('browser').hidden = true; sharesKey = '';
+      flash(r.state === 'ok' ? 'Shared as "' + r.share.name + '".' : 'Shared - but this program cannot read it yet (see the folder below).', r.state !== 'ok');
+      load();
+    }).catch(function (e) { flash(e.message, true); });
+  }
+  var lastTyped = '';
+  function shareTyped() { var p = $('add-path').value.trim(); if (p && p !== lastTyped) { lastTyped = p; addShare(p, true); } }
+  $('add-path').onkeydown = function (e) { if (e.key === 'Enter') shareTyped(); };
+  $('add-path').onchange = shareTyped; // leaving the field after pasting
+  $('add-path').oninput = function () { lastTyped = ''; };
+  $('pick-btn').onclick = function () { flash('The dialog may open behind this window.'); api('POST', '/api/pick', {}).then(function (r) { if (r.path) addShare(r.path); }).catch(function (e) { flash(e.message, true); }); };
+  $('browse-btn').onclick = function () { $('browser').hidden = !$('browser').hidden; if (!$('browser').hidden) browseTo(''); };
+  function browseTo(p) {
+    api('GET', '/api/browse?path=' + encodeURIComponent(p)).then(function (r) {
+      var html = '';
+      if (r.path) {
+        html += '<div class="row between" style="margin-bottom: 6px;"><span class="mono small wrap">' + esc(r.path) + '</span><span class="row">'
+          + '<button data-dir="' + esc(r.parent || '') + '">Up</button><button class="primary" data-share-here="' + esc(r.path) + '">Share this folder</button></span></div>';
+      }
+      if (r.denied) html += '<p class="small" style="color: var(--bad);">No permission to look inside this folder' + (state.os === 'darwin' ? ' - macOS may ask, or allow it in Privacy &amp; Security.' : '.') + '</p>';
+      html += (r.dirs || []).map(function (d) { return '<button class="dir" data-dir="' + esc(d.path) + '">&#128193; ' + esc(d.name) + '</button>'; }).join('') || '<p class="muted small">No folders inside.</p>';
+      $('browser').innerHTML = html;
+    }).catch(function (e) { flash(e.message, true); });
+  }
+  $('direct-save').onclick = function () { api('POST', '/api/direct', {enabled: $('direct-on').checked, port: +$('direct-port').value, advertise: $('direct-advertise').value}).then(function () { saved.direct = directValues(); dirtyForms(); flash('Saved.'); }).catch(function (e) { flash(e.message, true); }); };
+  $('autostart-managed').onclick = function (e) { e.preventDefault(); api('POST', '/api/autostart', {enabled: true}).catch(function (err) { flash(err.message, true); }); };
+  $('autostart').onchange = function () { api('POST', '/api/autostart', {enabled: $('autostart').checked}).then(function () { flash('Saved.'); }).catch(function (e) { flash(e.message, true); }); };
+  $('trust-save').onclick = function () { api('POST', '/api/pipeline-trust', {digests: $('trust').value}).then(function () { saved.trust = $('trust').value; dirtyForms(); flash('Saved.'); }).catch(function (e) { flash(e.message, true); }); };
+
+  if (!token) { $('status').textContent = 'Open this page from the program (tray menu: Shared folders, or lendspare --settings).'; return; }
+  load(); setInterval(load, 3000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: gofmt
+        if: runner.os == 'Linux'
+        run: make fmt-check
+      - name: go mod tidy
+        if: runner.os == 'Linux'
+        run: go mod tidy -diff
+      - run: go vet ./...
+      - name: go test
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then go test -race ./...; else go test ./...; fi
+      - run: go build ./cmd/lendspare
+
+  lint:
+    strategy:
+      fail-fast: false
+      matrix:
+        # macOS covers the cgo menu-bar tray, Windows the Win32 tray and key store.
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.6.2

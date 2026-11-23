@@ -1,0 +1,36 @@
+# Run LendSpare as a container (Docker Desktop or Docker Engine):
+#
+#   docker compose up -d
+#   docker compose exec lendspare /lendspare connect        # connect it to a provider, in the terminal
+#
+# Nothing is shared and no provider is contacted until you connect. The connection (and the
+# private key, in a 0600 file - a container has no desktop key store) lives in the `lendspare-config`
+# volume. Podman users and anyone without Docker: use the native binary instead.
+#
+# The program starts ComfyUI and pipeline containers *beside* itself through the engine
+# socket, so the job directory must have the same path inside and outside this container
+# (LENDSPARE_WORK_DIR, mounted onto itself). On Docker Desktop that path lives in its VM.
+services:
+  lendspare:
+    build: .
+    image: lendspare:local
+    restart: unless-stopped
+    environment:
+      LENDSPARE_SELF_IMAGE: lendspare:local   # the egress sidecar runs from this image
+      LENDSPARE_ENGINE: docker
+      LENDSPARE_SECRETS: file
+    command: ["--work-dir", "${LENDSPARE_WORK_DIR:-/tmp/lendspare-work}"]
+    volumes:
+      - lendspare-config:/config
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${LENDSPARE_WORK_DIR:-/tmp/lendspare-work}:${LENDSPARE_WORK_DIR:-/tmp/lendspare-work}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  lendspare-config:

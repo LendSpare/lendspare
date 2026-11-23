@@ -1,0 +1,19 @@
+# Build output
+/bin/
+/dist/
+/build/
+/lendspare
+*.exe
+*.test
+*.out
+coverage.*
+
+# Local files
+/tmp/
+.idea/
+.vscode/
+.DS_Store
+
+# Local code-signing settings (scripts/sign-windows.sh)
+/scripts/signing.env
+/scripts/msix.env
