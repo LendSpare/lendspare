@@ -55,7 +55,8 @@ func hasRunValue(name string) bool {
 }
 
 func writeRunValue(name, command string) error {
-	key, err := openRunKey(keySetValue)
+	// Created when missing: a fresh profile (a CI runner's, a new user's) may have no Run key yet.
+	key, err := createKey(runKeyPath)
 	if err != nil {
 		return err
 	}
