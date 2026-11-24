@@ -1,6 +1,6 @@
 # LendSpare Connected Services Terms (artur.work)
 
-> **Draft 0.3, 2026-11-18. Working draft for lawyer review. Not legal advice, not a published document, and not in force.**
+> **Draft 0.4, 2026-11-24. Working draft for lawyer review. Not legal advice, not a published document, and not in force.**
 > Square-bracketed text is unknown and must be filled in or removed by the lawyer. Developed from Template A of `tmp/LendSpare_TZ_and_Terms_Drafts.md`.
 
 **Effective date:** [DATE]
@@ -27,7 +27,7 @@
 
 ## 2. Who may connect
 
-2.1 You must be at least [MINIMUM AGE] and old enough to enter into a contract where you live. You must have the right to offer the Resource you connect: a computer or folder you do not control, or that belongs to your employer or another person, is not yours to offer without their permission.
+2.1 You must be at least [MINIMUM AGE] and old enough to enter into a contract where you live. You must have the right to offer the Resource you connect, and nothing in that right may forbid using it for the Service. The computer does not have to be yours (it can be rented, for example), but a computer or folder that belongs to your employer or another person is not yours to offer if they, or your contract with them, do not allow it. Never connect a hacked, infected or stolen device, or one whose owner or origin you do not know. You answer for this, also towards third parties; the rules for computing are in the Compute Participation Terms, sections 2.6 to 2.8.
 
 2.2 You need an Account on the applicable site. The existing site terms apply to the Account.
 
@@ -98,7 +98,7 @@
 
 10.1 The service is offered on a best-effort basis, as set out on the Operator's service-level page. [LAWYER: that page currently promises no uptime percentage and no service credits; confirm this section stays consistent with it.]
 
-10.2 Your Device is your own and can be switched off, disconnected or slow at any time. Neither side promises that a Resource will be available.
+10.2 Your Device can be switched off, disconnected or slow at any time. Neither side promises that a Resource will be available.
 
 ## 11. Liability and mandatory rights
 
