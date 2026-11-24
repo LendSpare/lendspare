@@ -28,7 +28,7 @@ var pageDaemon atomic.Pointer[daemon]
 const (
 	textReady        = "LendSpare is ready"
 	textReadyHint    = "Connect from the website where you use LendSpare."
-	daemonVersion    = "0.0.2"
+	daemonVersion    = "0.0.3"
 	envDeprecatedFmt = "%s is no longer used: LendSpare has no default server and takes no token from the environment. Connect from the website where you use LendSpare, or run `lendspare connect`."
 )
 
