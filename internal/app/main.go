@@ -34,9 +34,6 @@ const (
 
 func pageStatus() map[string]any {
 	out := map[string]any{"status": textReady, "hint": textReadyHint}
-	if a := appInst; a != nil {
-		out["connections"] = len(a.mgr.list())
-	}
 	if d := pageDaemon.Load(); d != nil {
 		_, text, jobs := d.st.snapshot()
 		out["status"], out["jobs"], out["paused"] = text, jobs, d.st.isPaused()

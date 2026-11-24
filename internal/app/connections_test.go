@@ -799,6 +799,37 @@ func TestADeepLinkHandedToThePageOnlyOpensAConfirmation(t *testing.T) {
 	}
 }
 
+// The page's header state must not replace the connection list with a count.
+func TestStateListsConnectionsWhenThereAreSome(t *testing.T) {
+	p := newFakeProvider(t, "a")
+	m := newTestManager(t, p.origin())
+	a := &app{mgr: m, pair: newPairer(m)}
+	prev := appInst
+	appInst = a
+	t.Cleanup(func() { appInst = prev })
+	p.open("K7QM2XWD")
+	v, err := a.pair.fromCode(p.host(), "K7QM-2XWD")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := a.pair.allow(v["id"].(string)); err != nil {
+		t.Fatal(err)
+	}
+	s := &settingsServer{token: "tok", port: 4242, app: a, state: pageStatus}
+	r := httptest.NewRequest("GET", "/api/state", nil)
+	r.Host = "127.0.0.1:4242"
+	r.Header.Set("X-LendSpare-Token", "tok")
+	w := httptest.NewRecorder()
+	s.ServeHTTP(w, r)
+	var state map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &state); err != nil {
+		t.Fatalf("%d %s", w.Code, w.Body)
+	}
+	if conns, ok := state["connections"].([]any); !ok || len(conns) != 1 {
+		t.Fatalf("connections = %#v, want a list of one", state["connections"])
+	}
+}
+
 // --- small things the old tests covered ------------------------------------------------------
 
 func TestParseDeepLinkAndCode(t *testing.T) {
