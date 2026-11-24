@@ -799,6 +799,30 @@ func TestADeepLinkHandedToThePageOnlyOpensAConfirmation(t *testing.T) {
 	}
 }
 
+// The worker id the provider answers is stored, and storing it must not set off another report
+// when it is the same id: onChange reports again, which once looped without end.
+func TestACapabilityReportDoesNotLoopOnTheWorkerID(t *testing.T) {
+	p := newFakeProvider(t, "a")
+	m := newTestManager(t, p.origin())
+	d := newTestDaemon(t, m)
+	c, err := m.upsert(connection{ID: "ca", Origin: p.origin(), Service: "ai", Scopes: []string{scopeCompute}}, p.token)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := m.setCompute(c.ID, true); err != nil {
+		t.Fatal(err)
+	}
+	m.onChange = func() { d.reportAll() }
+	d.reportAll()
+	time.Sleep(500 * time.Millisecond)
+	p.mu.Lock()
+	n := len(p.caps)
+	p.mu.Unlock()
+	if n == 0 || n > 2 {
+		t.Fatalf("%d capability reports, want 1 or 2", n)
+	}
+}
+
 // The page's header state must not replace the connection list with a count.
 func TestStateListsConnectionsWhenThereAreSome(t *testing.T) {
 	p := newFakeProvider(t, "a")

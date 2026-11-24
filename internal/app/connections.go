@@ -307,6 +307,19 @@ func (m *manager) setWorkerID(id string, n int) {
 	if n <= 0 {
 		return
 	}
+	// Every report answers with the worker id; an update would fire onChange, which reports again.
+	m.mu.Lock()
+	m.reloadLocked()
+	same := false
+	for _, c := range m.cfg.Connections {
+		if c.ID == id && c.WorkerID == n {
+			same = true
+		}
+	}
+	m.mu.Unlock()
+	if same {
+		return
+	}
 	_ = m.update(id, func(c *connection) { c.WorkerID = n })
 }
 
