@@ -1,0 +1,34 @@
+name: Release
+
+# Push a tag matching daemonVersion (internal/app/main.go), e.g. `git tag v0.0.2 && git push origin v0.0.2`.
+# lendspare.com links to releases/latest/download/<file>, so the asset names must stay as scripts/build.sh writes them.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    # The macOS tray needs cgo, which cannot cross-compile; Linux and Windows cross-compile from here.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - name: Tag matches daemonVersion
+        run: |
+          v="$(sed -n 's/^[[:space:]]*daemonVersion[[:space:]]*=[[:space:]]*"\([0-9.]*\)".*/\1/p' internal/app/main.go)"
+          if [ "v$v" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match daemonVersion $v"
+            exit 1
+          fi
+      - run: go test ./...
+      - run: command -v sha256sum || brew install coreutils
+      - run: bash scripts/build.sh
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/lendspare-* --verify-tag --generate-notes --title "LendSpare $GITHUB_REF_NAME"

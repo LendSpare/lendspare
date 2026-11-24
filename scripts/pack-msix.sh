@@ -40,7 +40,7 @@ if [ -z "$version" ]; then
     [ -n "$v" ] || die "cannot read daemonVersion from internal/app/main.go; set MSIX_VERSION"
     version="$v.0"
 fi
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.0$ ]] || die "MSIX_VERSION must look like 3.0.0.0 (the Store requires the last part 0), got $version"
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.0$ ]] || die "MSIX_VERSION must look like 0.0.2.0 (the Store requires the last part 0), got $version"
 [ -n "${MSIX_IDENTITY_NAME:-}" ] || echo "pack-msix: no MSIX_IDENTITY_NAME - using a local test identity (not for the Store)" >&2
 
 winpath() { cygpath -w "$1" 2>/dev/null || echo "$1"; }
