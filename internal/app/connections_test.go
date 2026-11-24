@@ -816,7 +816,7 @@ func TestStateListsConnectionsWhenThereAreSome(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := &settingsServer{token: "tok", port: 4242, app: a, state: pageStatus}
-	r := httptest.NewRequest("GET", "/api/state", nil)
+	r := httptest.NewRequest(http.MethodGet, "/api/state", nil)
 	r.Host = "127.0.0.1:4242"
 	r.Header.Set("X-LendSpare-Token", "tok")
 	w := httptest.NewRecorder()
