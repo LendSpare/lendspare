@@ -1,6 +1,6 @@
 # LendSpare Compute Connection Terms (BrainyBrain Inc.)
 
-> **Draft 0.3, 2026-11-18. Working draft for lawyer review. Not legal advice, not a published document, and not in force.**
+> **Draft 0.4, 2026-11-24. Working draft for lawyer review. Not legal advice, not a published document, and not in force.**
 > Square-bracketed text is unknown and must be filled in or removed by the lawyer. Developed from Template B of `tmp/LendSpare_TZ_and_Terms_Drafts.md`.
 
 **Effective date:** [DATE]
@@ -28,7 +28,7 @@
 
 2.2 Connection credentials are limited to the authorised account, Device and permissions, and cannot be used for any other service. Nothing in a link, code or web page can widen a Connection. A Resource is not offered until you also switch it on locally.
 
-2.3 You must be at least [MINIMUM AGE] and have the right to offer the Device. A computer that belongs to your employer or someone else is not yours to offer without their permission.
+2.3 You must be at least [MINIMUM AGE] and have the right to offer the Device, and nothing in that right may forbid using it for the Service. The Device does not have to be yours (it can be rented, for example), but a computer that belongs to your employer or someone else is not yours to offer if they, or your contract with them, do not allow it. Never connect a hacked, infected or stolen device, or one whose owner or origin you do not know. You answer for this, also towards third parties, as set out in the Compute Participation Schedule, sections 2.6 to 2.8.
 
 2.4 The Company may revoke or refuse access to protect accounts, systems or other users, as far as applicable law allows.
 

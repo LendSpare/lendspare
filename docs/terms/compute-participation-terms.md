@@ -1,6 +1,6 @@
 # Compute Participation Terms
 
-> **Draft 0.3, 2026-11-18. Working draft for lawyer review. Not legal advice, not a published document, and not in force.**
+> **Draft 0.4, 2026-11-24. Working draft for lawyer review. Not legal advice, not a published document, and not in force.**
 > Square-bracketed text is unknown and must be filled in or removed by the lawyer.
 
 **How this document is organised.** The body is common to both operators. **Annex A** applies only to Participants of the artur.work Operator and **Annex B** only to Participants of BrainyBrain Inc. When published, each operator's page carries the body plus **its own annex only**, with no reference to the other operator (see README). In the body, "the Operator" means the operator whose site you accepted these terms on.
@@ -27,6 +27,12 @@ These terms are accepted on the Operator's site, **before** a compute Resource i
 2.4 **Your own use comes first.** By default LendSpare takes no GPU work while another program on the Device is using the GPU, and it stops the image-generation container it started while you use the card. You can switch this behaviour off in LendSpare's configuration.
 
 2.5 **Software you install yourself.** Some classes of work need software that LendSpare neither includes nor installs: a container engine (Docker Desktop or Podman), a GPU driver, or a local model server (such as Ollama or LM Studio). That software is under its own licence and terms. Without it, the classes that need it are simply not offered to your Device.
+
+2.6 **Hardware you may connect.** You may connect only a Device that you have the right to use, and only if nothing in that right forbids using it for the purposes of the Service. The Device does not have to be yours: it can be a rented server or a computer in a club. If the contract with its owner or provider, or their rules, forbid offering its computing to others or running other people's work on it, you may not connect it. When your right ends, or no longer allows this use, disconnect the Device.
+
+2.7 **Hardware you may never connect.** Never connect a hacked, infected or stolen device, a device you control without its owner's permission, or a device whose owner or origin you do not know. The Operator may disconnect a Device that breaks section 2.6 or 2.7 and close the account, and will say why unless the law prevents it.
+
+2.8 **You answer for the Device.** You are responsible for the Device being legitimate under sections 2.6 and 2.7. If it is not, all claims that arise from this - from the owner or provider of the Device, from Customers or from anyone else - are to be made against you and are yours to answer, and you reimburse the Operator for what such claims cost it. This applies as far as the law allows and does not limit the statutory rights of consumers. [LAWYER: see README question 16.]
 
 ## 3. What work may run
 
@@ -63,9 +69,9 @@ These terms are accepted on the Operator's site, **before** a compute Resource i
 
 ## 6. The public gallery of your own test results
 
-6.1 To show Customers what your Listing produces, the Operator may publish, in a public gallery, results of **your own** test runs of your Listing, run by you on your own Device. Parameters and the output of that run are copied from the job and are visible to the public, and so is that you (or your Listing) produced them [DISPLAY NAME RULES: TO DECIDE].
+6.1 To show Customers what your Listing produces, the Operator may publish, in a public gallery, results of **your own** test runs of your Listing, run by you on your Device. Parameters and the output of that run are copied from the job and are visible to the public, and so is that you (or your Listing) produced them [DISPLAY NAME RULES: TO DECIDE].
 
-6.2 Only a successful run you started yourself on your own machine can be published. Results of Customer jobs are never published. A Customer's own photo is never published.
+6.2 Only a successful run you started yourself on your Device can be published. Results of Customer jobs are never published. A Customer's own photo is never published.
 
 6.3 Accounts newer than [SEVEN DAYS: CONFIRM] publish into review. Items reported by [THREE] different people are hidden until the Operator decides. You must not put into a test run anything you have no right to publish. Published items are removed when you delete your account.
 
@@ -97,7 +103,7 @@ These terms are accepted on the Operator's site, **before** a compute Resource i
 
 ## 9. Prohibited conduct
 
-You must not: falsify or fabricate results, replay old results as new, or return output not produced by the work leased; tamper with, patch, reverse-engineer for the purpose of deceiving, or impersonate LendSpare or its credentials; use another person's Device or account; run work for the Operator's Customers outside LendSpare to avoid the fee or checks; read, keep or use Job content (section 4.2); offer, run or disguise any work excluded by section 3.6, including cryptocurrency mining; try to identify Customers; offer a Resource you do not have rights to; or interfere with other Participants or the service. The licence of LendSpare's source code lets you modify the code for your own use; it does not allow you to present a modified client to the Operator as the genuine one.
+You must not: falsify or fabricate results, replay old results as new, or return output not produced by the work leased; tamper with, patch, reverse-engineer for the purpose of deceiving, or impersonate LendSpare or its credentials; use another person's account, or a device that sections 2.6 and 2.7 do not let you connect; run work for the Operator's Customers outside LendSpare to avoid the fee or checks; read, keep or use Job content (section 4.2); offer, run or disguise any work excluded by section 3.6, including cryptocurrency mining; try to identify Customers; offer a Resource you do not have rights to; or interfere with other Participants or the service. The licence of LendSpare's source code lets you modify the code for your own use; it does not allow you to present a modified client to the Operator as the genuine one.
 
 ## 10. Suspension and ending
 

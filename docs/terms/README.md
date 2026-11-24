@@ -1,6 +1,6 @@
 # LendSpare: draft legal documents, index for the lawyer
 
-> **Draft 0.3, 2026-11-18. Working drafts for lawyer review. Not legal advice, not published, not in force.**
+> **Draft 0.4, 2026-11-24. Working drafts for lawyer review. Not legal advice, not published, not in force.**
 > Source: `tmp/LendSpare_TZ_and_Terms_Drafts.md` (sections 1, 2, 3, 8, 9, Templates A, B, C), `docs/PROTOCOL.md`, and the facts of the existing service as recorded in its project notes and legal pages. Where a fact was not known it is a `[BRACKETED PLACEHOLDER]`.
 
 ## 1. The documents
@@ -123,6 +123,9 @@ Other
 Microsoft Store
 14. Who is the Store publisher, and does naming one operator (or a third entity) as publisher conflict with the separation rules in section 2?
 15. Licence terms entered in Partner Center (MPL-2.0 instead of Microsoft's Standard Application License Terms), and whether the "Where you got LendSpare" clause (artur.work Terms 1.4, BrainyBrain Terms 1.3) is consistent with the Microsoft Store App Developer Agreement.
+
+Rented and third-party hardware
+16. Compute 2.6 to 2.8 (right to use, forbidden devices, responsibility and reimbursement): are they enforceable against a consumer Participant in each jurisdiction, and how do they fit the liability section (compute 13)? lendspare.com publishes the same rules in its Terms of Service, section 2 (version 2026-11-24).
 
 ## 6. Distribution through the Microsoft Store
 
